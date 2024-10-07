@@ -3,33 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>QR/Barcode Home</title>
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
-        .container {
-            text-align: center;
-        }
         .btn {
-            display: inline-block;
-            width: 200px;
-            padding: 15px;
-            margin: 10px;
             font-size: 18px;
-            color: white;
-            background-color: #007bff;
+            padding: 15px 30px;
+            margin: 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
             cursor: pointer;
-            text-align: center;
-            text-decoration: none;
         }
         .btn:hover {
             background-color: #0056b3;
@@ -37,10 +21,8 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to the App</h1>
-        <a href="/scanner" class="btn">Open Scanner</a>
-        <a href="#" class="btn">Another Feature</a> <!-- Placeholder for future features -->
-    </div>
+    <h1>QR/Barcode Scanner</h1>
+    <a href="/qr_scanner"><button class="btn">QR Code Scanner</button></a>
+    <a href="/barcode_scanner"><button class="btn">Barcode Scanner</button></a>
 </body>
 </html>

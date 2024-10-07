@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <style>
+        video {
+            width: 100%;
+            height: auto;
+        }
+        canvas {
+            display: none;
+        }
+        #output {
+            font-size: 18px;
+            margin-top: 20px;
+            color: green;
+        }
+        .toggle-switch {
+            margin-top: 20px;
+        }
+        .toggle-switch label {
+            margin-right: 10px;
+        }
+        .radio-btn {
+            appearance: none;
+            -webkit-appearance: none;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .radio-btn:hover {
+            background-color: #0056b3;
+        }
+        .radio-btn:checked {
+            background-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Scanner</h1>
+
+    <!-- Radio buttons styled as toggle buttons -->
+    <div class="toggle-switch">
+        <label>
+            <input type="radio" name="scannerMode" value="qr" class="radio-btn" checked> QR Code
+        </label>
+        <label>
+            <input type="radio" name="scannerMode" value="barcode" class="radio-btn" onclick="switchToBarcode()"> Barcode
+        </label>
+    </div>
+
+    <!-- Video for QR Code Scanner -->
+    <video id="video" autoplay></video>
+    <canvas id="canvas"></canvas>
+    <p id="output">No code detected yet...</p>
+
+    <form id="qrForm" method="POST" action="/display_data">
+        <input type="hidden" name="qr_data" id="qrDataInput">
+    </form>
+
+    <button class="back-btn" onclick="goBack()">Back</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const output = document.getElementById('output');
+        const canvasContext = canvas.getContext('2d');
+        const qrForm = document.getElementById('qrForm');
+        const qrDataInput = document.getElementById('qrDataInput');
+
+        function switchToBarcode() {
+            window.location.href = '/barcode_scanner';
+        }
+
+        // QR Code scanning logic
+        function startQRScanner() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.setAttribute('playsinline', true); // iOS compatibility
+                    video.play();
+                    requestAnimationFrame(scanQRCode);
+                });
+        }
+
+        function scanQRCode() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth;
+                canvasContext.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code) {
+                    output.innerText = `QR Code detected: ${code.data}`;
+                    qrDataInput.value = code.data;
+                    stopScanning();
+                    qrForm.submit();  // Submit the QR code data to the backend
+                } else {
+                    requestAnimationFrame(scanQRCode);
+                }
+            } else {
+                requestAnimationFrame(scanQRCode);
+            }
+        }
+
+        function stopScanning() {
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());  // Stop camera stream
+            }
+        }
+
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        startQRScanner();
+    </script>
+</body>
+</html>
