@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR/Barcode Scanner</title>
+    <style>
+        video {
+            width: 200px;
+            height: 200px;
+        }
+        canvas {
+            display: none;
+        }
+        #output {
+            font-size: 18px;
+            margin-top: 20px;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Scanner</h1>
+    <video id="video" autoplay></video>
+    <canvas id="canvas"></canvas>
+    <p id="output">No QR code detected yet...</p>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const output = document.getElementById('output');
+        const canvasContext = canvas.getContext('2d');
+
+        let scanning = true;  // To control scanning loop
+
+        // Access camera
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function(stream) {
+                video.srcObject = stream;
+                video.setAttribute('playsinline', true); // iOS compatibility
+                video.play();
+                requestAnimationFrame(scan);
+            });
+
+        function scan() {
+            if (!scanning) return;  // Stop scanning if a QR code is detected
+
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth;
+                canvasContext.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code) {
+                    output.innerText = `QR Code detected: ${code.data}`;
+                    stopScanning();  // Stop the scanning process
+                } else {
+                    requestAnimationFrame(scan);
+                }
+            } else {
+                requestAnimationFrame(scan);
+            }
+        }
+
+        function stopScanning() {
+            scanning = false;  // Set scanning to false to stop the loop
+            video.srcObject.getTracks().forEach(track => track.stop());  // Stop camera stream
+        }
+    </script>
+</body>
+</html>
