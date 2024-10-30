@@ -4,25 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR/Barcode Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='nfe-scanner.css') }}">
     <style>
-        .btn {
-            font-size: 18px;
-            padding: 15px 30px;
-            margin: 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
     </style>
 </head>
 <body>
-    <h1>QR/Barcode Scanner</h1>
-    <a href="/qr_scanner"><button class="btn">QR Code Scanner</button></a>
-    <a href="/barcode_scanner"><button class="btn">Barcode Scanner</button></a>
+    <div class="container">
+        <h1>QR/Barcode Scanner</h1>
+        <!--
+        <a href="/qr_scanner"><button class="btn">QR Code Scanner</button></a>
+        <a href="/barcode_scanner"><button class="btn">Barcode Scanner</button></a>
+        -->
+        <a href="/issue_wristband?qr_data=some_data"><button class="btn">Test DB</button></a>
+        <a href="/scanner?on_scan_action=/issue_wristband"><button class="btn">Udlevér armbånd</button></a>
+        <a href="/scanner?on_scan_action=/check_in"><button class="btn">Check ind</button></a>
+        <a href="/scanner?on_scan_action=/check_out"><button class="btn">Check ud</button></a>
+        <a href="/scanner?on_scan_action=/bar"><button class="btn">Bar</button></a>
+    </div>
 </body>
 </html>

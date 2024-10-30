@@ -4,127 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='nfe-scanner.css') }}">
     <style>
-        video {
-            width: 100%;
-            height: auto;
-        }
-        canvas {
-            display: none;
-        }
-        #output {
-            font-size: 18px;
-            margin-top: 20px;
-            color: green;
-        }
-        .toggle-switch {
-            margin-top: 20px;
-        }
-        .toggle-switch label {
-            margin-right: 10px;
-        }
-        .radio-btn {
-            appearance: none;
-            -webkit-appearance: none;
-            background-color: #007bff;
-            border: none;
-            color: white;
-            font-size: 16px;
-            padding: 10px 20px;
-            margin-right: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .radio-btn:hover {
-            background-color: #0056b3;
-        }
-        .radio-btn:checked {
-            background-color: #28a745;
-        }
+
     </style>
 </head>
 <body>
-    <h1>QR Code Scanner</h1>
+    <div class="container">
 
-    <!-- Radio buttons styled as toggle buttons -->
-    <div class="toggle-switch">
-        <label>
-            <input type="radio" name="scannerMode" value="qr" class="radio-btn" checked> QR Code
-        </label>
-        <label>
-            <input type="radio" name="scannerMode" value="barcode" class="radio-btn" onclick="switchToBarcode()"> Barcode
-        </label>
-    </div>
+        <h1>QR Code Scanner</h1>
 
-    <!-- Video for QR Code Scanner -->
-    <video id="video" autoplay></video>
-    <canvas id="canvas"></canvas>
-    <p id="output">No code detected yet...</p>
+        <!-- Radio buttons styled as toggle buttons -->
+        <div class="toggle-switch">
+            <label>
+                <input type="radio" name="scannerMode" value="qr" class="radio-btn" checked> QR Code
+            </label>
+            <label>
+                <input type="radio" name="scannerMode" value="barcode" class="radio-btn" onclick="switchToBarcode()"> Barcode
+            </label>
+        </div>
 
-    <form id="qrForm" method="POST" action="/display_data">
-        <input type="hidden" name="qr_data" id="qrDataInput">
-    </form>
+        <!-- Video for QR Code Scanner -->
+        <video id="video" autoplay></video>
+        <canvas id="canvas"></canvas>
+        <p id="output">No code detected yet...</p>
 
-    <button class="back-btn" onclick="goBack()">Back</button>
+        <form id="qrForm" method="POST" action="/display_data">
+            <input type="hidden" name="qr_data" id="qrDataInput">
+        </form>
 
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+        <button class="back-btn" onclick="goBack()">Back</button>
 
-    <script>
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const output = document.getElementById('output');
-        const canvasContext = canvas.getContext('2d');
-        const qrForm = document.getElementById('qrForm');
-        const qrDataInput = document.getElementById('qrDataInput');
+        <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 
-        function switchToBarcode() {
-            window.location.href = '/barcode_scanner';
-        }
+        <script>
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const output = document.getElementById('output');
+            const canvasContext = canvas.getContext('2d');
+            const qrForm = document.getElementById('qrForm');
+            const qrDataInput = document.getElementById('qrDataInput');
 
-        // QR Code scanning logic
-        function startQRScanner() {
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                .then(function(stream) {
-                    video.srcObject = stream;
-                    video.setAttribute('playsinline', true); // iOS compatibility
-                    video.play();
-                    requestAnimationFrame(scanQRCode);
-                });
-        }
+            function switchToBarcode() {
+                window.location.href = '/barcode_scanner';
+            }
 
-        function scanQRCode() {
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-                canvasContext.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // QR Code scanning logic
+            function startQRScanner() {
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                    .then(function(stream) {
+                        video.srcObject = stream;
+                        video.setAttribute('playsinline', true); // iOS compatibility
+                        video.play();
+                        requestAnimationFrame(scanQRCode);
+                    });
+            }
 
-                const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
+            function scanQRCode() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.height = video.videoHeight;
+                    canvas.width = video.videoWidth;
+                    canvasContext.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                if (code) {
-                    output.innerText = `QR Code detected: ${code.data}`;
-                    qrDataInput.value = code.data;
-                    stopScanning();
-                    qrForm.submit();  // Submit the QR code data to the backend
+                    const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (code) {
+                        output.innerText = `QR Code detected: ${code.data}`;
+                        qrDataInput.value = code.data;
+                        stopScanning();
+                        qrForm.submit();  // Submit the QR code data to the backend
+                    } else {
+                        requestAnimationFrame(scanQRCode);
+                    }
                 } else {
                     requestAnimationFrame(scanQRCode);
                 }
-            } else {
-                requestAnimationFrame(scanQRCode);
             }
-        }
 
-        function stopScanning() {
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());  // Stop camera stream
+            function stopScanning() {
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());  // Stop camera stream
+                }
             }
-        }
 
-        function goBack() {
-            window.location.href = '/';
-        }
+            function goBack() {
+                window.location.href = '/';
+            }
 
-        startQRScanner();
-    </script>
+            startQRScanner();
+        </script>
+    </div>
 </body>
 </html>

@@ -1,0 +1,97 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+.container {
+    text-align: center;
+}
+.btn,
+.back-btn {
+    display: inline-block;
+    width: 200px;
+    padding: 15px;
+    margin: 10px;
+    font-size: 18px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+.btn:hover,
+.back-btn:hover{
+    background-color: #0056b3;
+}
+
+video {
+    width: 200px;
+    height: auto;
+    border-radius: 15px;
+    border: 2px solid black;
+}
+canvas {
+    display: none;
+}
+#output {
+    font-size: 18px;
+    margin-top: 20px;
+    color: green;
+}
+.toggle-switch {
+    margin-top: 20px;
+}
+.toggle-switch label {
+    margin-right: 10px;
+}
+.radio-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.radio-btn:hover {
+    background-color: #0056b3;
+}
+.radio-btn:checked {
+    background-color: #28a745;
+}
+
+.slider-container {
+    width: 300px;
+    height: 50px;
+    border-radius: 25px;
+    background-color: #ddd;
+    position: relative;
+    margin: 20px auto;
+}
+.slider-thumb {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #007bff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    transition: left 0.3s ease;
+}
+.slider-complete {
+    background-color: green;
+}
+#output {
+    font-size: 18px;
+    margin-top: 20px;
+}

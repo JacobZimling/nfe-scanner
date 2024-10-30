@@ -4,127 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barcode Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='nfe-scanner.css') }}">
     <style>
-        video {
-            width: 100%;
-            height: auto;
-        }
-        #output {
-            font-size: 18px;
-            margin-top: 20px;
-            color: green;
-        }
-        .toggle-switch {
-            margin-top: 20px;
-        }
-        .toggle-switch label {
-            margin-right: 10px;
-        }
-        .radio-btn {
-            appearance: none;
-            -webkit-appearance: none;
-            background-color: #007bff;
-            border: none;
-            color: white;
-            font-size: 16px;
-            padding: 10px 20px;
-            margin-right: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .radio-btn:hover {
-            background-color: #0056b3;
-        }
-        .radio-btn:checked {
-            background-color: #28a745;
-        }
+
     </style>
 </head>
 <body>
-    <h1>Barcode Scanner</h1>
+    <div class="container">
+        <h1>Barcode Scanner</h1>
 
-    <!-- Radio buttons styled as toggle buttons -->
-    <div class="toggle-switch">
-        <label>
-            <input type="radio" name="scannerMode" value="qr" class="radio-btn" onclick="switchToQR()"> QR Code
-        </label>
-        <label>
-            <input type="radio" name="scannerMode" value="barcode" class="radio-btn" checked> Barcode
-        </label>
-    </div>
+        <!-- Radio buttons styled as toggle buttons -->
+        <div class="toggle-switch">
+            <label>
+                <input type="radio" name="scannerMode" value="qr" class="radio-btn" onclick="switchToQR()"> QR Code
+            </label>
+            <label>
+                <input type="radio" name="scannerMode" value="barcode" class="radio-btn" checked> Barcode
+            </label>
+        </div>
 
-    <!-- Video for Barcode Scanner -->
-    <video id="video" autoplay></video>
-    <p id="output">No barcode detected yet...</p>
+        <!-- Video for Barcode Scanner -->
+        <video id="video" autoplay></video>
+        <p id="output">No barcode detected yet...</p>
 
-    <form id="qrForm" method="POST" action="/display_data">
-        <input type="hidden" name="qr_data" id="qrDataInput">
-    </form>
+        <form id="qrForm" method="POST" action="/display_data">
+            <input type="hidden" name="qr_data" id="qrDataInput">
+        </form>
 
-    <button class="back-btn" onclick="goBack()">Back</button>
+        <button class="back-btn" onclick="goBack()">Back</button>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 
-    <script>
-        const video = document.getElementById('video');
-        const output = document.getElementById('output');
-        const qrForm = document.getElementById('qrForm');
-        const qrDataInput = document.getElementById('qrDataInput');
+        <script>
+            const video = document.getElementById('video');
+            const output = document.getElementById('output');
+            const qrForm = document.getElementById('qrForm');
+            const qrDataInput = document.getElementById('qrDataInput');
 
-        function switchToQR() {
-            window.location.href = '/qr_scanner';
-        }
-
-        // Barcode scanning logic with video initialization
-        function startBarcodeScanner() {
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                .then(function(stream) {
-                    video.srcObject = stream;
-                    video.setAttribute('playsinline', true); // iOS compatibility
-                    video.play();
-
-                    Quagga.init({
-                        inputStream: {
-                            type: "LiveStream",
-                            target: video,  // Use the video element as input
-                            constraints: {
-                                facingMode: "environment"
-                            }
-                        },
-                        decoder: {
-                            readers: ["code_128_reader", "ean_reader", "ean_8_reader", "upc_reader"]
-                        }
-                    }, function(err) {
-                        if (err) {
-                            console.log(err);
-                            return;
-                        }
-                        Quagga.start();
-                    });
-
-                    Quagga.onDetected(function(result) {
-                        if (result && result.codeResult && result.codeResult.code) {
-                            output.innerText = `Barcode detected: ${result.codeResult.code}`;
-                            qrDataInput.value = result.codeResult.code;
-                            stopScanning();
-                            qrForm.submit();  // Submit the barcode data to the backend
-                        }
-                    });
-                });
-        }
-
-        function stopScanning() {
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());  // Stop camera stream
+            function switchToQR() {
+                window.location.href = '/qr_scanner';
             }
-            Quagga.stop();  // Stop the barcode scanner if active
-        }
 
-        function goBack() {
-            window.location.href = '/';
-        }
+            // Barcode scanning logic with video initialization
+            function startBarcodeScanner() {
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                    .then(function(stream) {
+                        video.srcObject = stream;
+                        video.setAttribute('playsinline', true); // iOS compatibility
+                        video.play();
 
-        startBarcodeScanner();
-    </script>
+                        Quagga.init({
+                            inputStream: {
+                                type: "LiveStream",
+                                target: video,  // Use the video element as input
+                                constraints: {
+                                    facingMode: "environment"
+                                }
+                            },
+                            decoder: {
+                                readers: ["code_128_reader", "ean_reader", "ean_8_reader", "upc_reader"]
+                            }
+                        }, function(err) {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            }
+                            Quagga.start();
+                        });
+
+                        Quagga.onDetected(function(result) {
+                            if (result && result.codeResult && result.codeResult.code) {
+                                output.innerText = `Barcode detected: ${result.codeResult.code}`;
+                                qrDataInput.value = result.codeResult.code;
+                                stopScanning();
+                                qrForm.submit();  // Submit the barcode data to the backend
+                            }
+                        });
+                    });
+            }
+
+            function stopScanning() {
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());  // Stop camera stream
+                }
+                Quagga.stop();  // Stop the barcode scanner if active
+            }
+
+            function goBack() {
+                window.location.href = '/';
+            }
+
+            startBarcodeScanner();
+        </script>
+    </div>
 </body>
 </html>

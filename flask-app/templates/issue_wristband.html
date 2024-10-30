@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='nfe-scanner.css') }}">
+    <style>
+    </style>
+</head>
+<body>
+    <h1>QR/Barcode Data</h1>
+
+    {% if found %}
+        <p>Scanned Code: {{ data.code }}</p>
+        <p>Additional Data: {{ data.extra_info }}</p>
+    {% else %}
+        <p>Scanned Code: {{ code }}</p>
+        <p>Code not found in the database.</p>
+    {% endif %}
+
+    <div id="output">Swipe to verify</div>
+    <div class="slider-container" id="slider">
+        <div class="slider-thumb" id="slider-thumb"></div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('slider');
+        const thumb = document.getElementById('slider-thumb');
+        const output = document.getElementById('output');
+        let isSliding = false;
+
+        thumb.addEventListener('mousedown', startSliding);
+        window.addEventListener('mouseup', stopSliding);
+        window.addEventListener('mousemove', slide);
+
+        function startSliding(e) {
+            isSliding = true;
+        }
+
+        function stopSliding() {
+            if (isSliding && thumb.offsetLeft > (slider.offsetWidth - thumb.offsetWidth) * 0.8) {
+                output.innerText = 'Verified!';
+                slider.classList.add('slider-complete');
+            }
+            isSliding = false;
+        }
+
+        function slide(e) {
+            if (!isSliding) return;
+
+            let sliderRect = slider.getBoundingClientRect();
+            let newLeft = e.clientX - sliderRect.left - thumb.offsetWidth / 2;
+
+            // Restrict thumb movement within the slider
+            newLeft = Math.max(0, Math.min(newLeft, slider.offsetWidth - thumb.offsetWidth));
+            thumb.style.left = newLeft + 'px';
+        }
+    </script>
+</body>
+</html>
